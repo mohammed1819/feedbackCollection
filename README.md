@@ -6,16 +6,6 @@ Built with modern full-stack development practices including JWT authentication,
 
 ---
 
-## Live Demo
-
-### Frontend
-[Live Application](https://feedback-collection-<your-domain>.vercel.app)
-
-### Backend API
-[Backend Service](https://feedbackcollection-<your-domain>.onrender.com)
-
----
-
 # Project Overview
 
 This application allows users to submit feedback to companies while providing administrators with a centralized dashboard to monitor customer sentiment, manage feedback status, review analytics, and export reports.
