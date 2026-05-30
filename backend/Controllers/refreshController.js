@@ -1,5 +1,6 @@
 const User = require('../models/User')
 const Admin = require('../models/Admin')
+const Company = require('../models/Company')
 const jwt = require('jsonwebtoken')
 const asyncHandler = require('express-async-handler')
 
@@ -37,7 +38,9 @@ const refresh = asyncHandler (async (req,res) =>{
             process.env.ACCESS_TOKEN_SECRET,
             {expiresIn:'10s'}
             )
-            res.json({accessToken})
+            const company = await Company.findById(foundUser.companyId)
+        
+            res.json({accessToken , slug:company.slug, role:foundUser.role})
         }
     ))
 

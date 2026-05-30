@@ -34,13 +34,15 @@ app.use('/anonymousfeedback',require('./routes/anonymousFeedback'))
 app.use('/company-register',require('./routes/companyroutes'))
 app.use('/confirmCode',require('./routes/confirmRoute'))
 app.use('/companies',require('./routes/getCompanies'))
-
-app.use('/test',require('./routes/test'))
+app.use('/companyusers',require('./routes/companyUsers'))
 
 app.use('/feedback',require('./routes/authenticatedFeedback'))
 app.use('/myfeedbacks',require('./routes/myfeedbacks'))
+app.use('/companyfeedbacks',require('./routes/companyFeedbacks'))
 
-
+// app.get('*', (req, res) => {
+//     res.sendFile(path.join(__dirname, 'public', '404.html'));
+// });
 
 app.all('*', (req, res) => {
     res.status(404)

@@ -1,10 +1,11 @@
 const express = require('express')
 const router = express.Router()
 const verifyJWT = require('../middleware/verifyJWT')
+const companyController = require('../Controllers/CompanyController')
+
+router.use(verifyJWT)
 
 router.route('/')
-    .get(verifyJWT,(req,res)=>{
-        res.send({message:'hi'})
-    })
+    .get(companyController.getCompanyUsers)
 
 module.exports = router

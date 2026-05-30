@@ -108,7 +108,7 @@ const FeedBackForm = () => {
                 </div>
             </div>
         </div>
-    ); v
+    );
 }
 
 export default FeedBackForm

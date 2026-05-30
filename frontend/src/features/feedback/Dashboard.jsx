@@ -8,9 +8,9 @@ import { Link } from "react-router-dom";
 const Dashboard = () => {
 
   const axiosPrivate = useAxiosPrivate()
-  const [feedbacks, setfeedbacks] = useState([])
-  const [count, setcount] = useState(null)
-  const [average, setaverage] = useState(0)
+  const [feedbacks, setFeedbacks] = useState([])
+  const [count, setCount] = useState(null)
+  const [average, setAverage] = useState(0)
   let totalRating
   let averageRating
 
@@ -20,16 +20,16 @@ const Dashboard = () => {
         const response = await axiosPrivate.get('/myfeedbacks')
         if (response?.data?.message) {
           console.log(response?.data?.message)
-          setcount(0)
-          setaverage(0)
+          setCount(0)
+          setAverage(0)
           return
         }
         const feedbacksData = response?.data?.feedbacks
-        setfeedbacks(feedbacksData)
-        setcount(feedbacksData.length)
+        setFeedbacks(feedbacksData.map(feedback => ({ ...feedback, status: feedback.status || 'Pending' })))
+        setCount(feedbacksData.length)
         totalRating = feedbacksData.reduce((sum, feedback) => sum + feedback.rating, 0)
         averageRating = totalRating / feedbacksData.length
-        setaverage(Number(averageRating.toFixed(2)))
+        setAverage(Number(averageRating.toFixed(2)))
       } catch (err) {
         console.log(err?.response || err)
       }
@@ -39,14 +39,15 @@ const Dashboard = () => {
 
 
   const { auth } = useAuth()
-  const decoded = jwtDecode(auth.accessToken)
+  const decoded = auth?.accessToken ? jwtDecode(auth.accessToken) : null
+  const userEmail = decoded?.UserInfo?.email || ''
+  const userName = userEmail ? userEmail.split('@')[0] : 'User'
 
-
-  // const userName = decoded.UserInfo.username.split('@gmail.com')[0]
+  const pendingCount = feedbacks.filter(feedback => feedback.status?.toLowerCase() === 'pending').length
 
   return (
     <div className="container py-5">
-      <h2 className="mb-4">Welcome back, !</h2>
+      <h2 className="mb-4">Welcome back, {userName.charAt(0).toUpperCase() + userName.slice(1)}!</h2>
 
       {/* Dashboard summary cards */}
       <div className="row g-4">
@@ -54,7 +55,7 @@ const Dashboard = () => {
           <div className="card shadow-sm">
             <div className="card-body">
               <h5 className="card-title">Total Feedback</h5>
-              <p className="card-text fs-4">{count}</p>
+              <p className="card-text fs-4">{count === null ? 'Loading...' : count}</p>
             </div>
           </div>
         </div>
@@ -63,7 +64,7 @@ const Dashboard = () => {
           <div className="card shadow-sm">
             <div className="card-body">
               <h5 className="card-title">Pending Reviews</h5>
-              <p className="card-text fs-4">14</p>
+              <p className="card-text fs-4">{count === null ? 'Loading...' : pendingCount}</p>
             </div>
           </div>
         </div>
@@ -72,7 +73,7 @@ const Dashboard = () => {
           <div className="card shadow-sm">
             <div className="card-body">
               <h5 className="card-title">Avg. Rating</h5>
-              <p className="card-text fs-4">{`${average} ★`}</p>
+              <p className="card-text fs-4">{count === null ? 'Loading...' : `${average} ★`}</p>
             </div>
           </div>
         </div>

@@ -2,14 +2,16 @@ import useAuth from "../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom"; 
 
-function Navbar2() {
-  const { setAuth, setPersist, logout } = useAuth();
+function Navbar3() {
+  const {  auth,logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
     logout();
     navigate("/"); 
   };
+
+  const slug = auth.slug
 
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-light">
@@ -30,16 +32,16 @@ function Navbar2() {
         <div className="collapse navbar-collapse" id="navbarNav">
           <ul className="navbar-nav ms-auto">
             <li className="nav-item">
-              <Link to="/dashboard" className="nav-link">Dashboard</Link>
+              <Link to={`/${slug}/dashboard`} className="nav-link">Dashboard</Link>
             </li>
             <li className="nav-item">
-              <Link to="/feedbackform" className="nav-link">Feedback Form</Link>
+              <Link to={`/${slug}/companyfeedbacks`} className="nav-link">Company Feedbacks</Link>
             </li>
             <li className="nav-item">
-              <Link to="/myfeedbacks" className="nav-link">My Feedbacks</Link>
+              <Link to={`/${slug}/companyusers`} className="nav-link">Users</Link>
             </li>
             <li className="nav-item">
-              <Link to="/myfeedbackstats" className="nav-link">FeedBack Stats</Link>
+              <Link to={`/${slug}/analytics`} className="nav-link">Analytics</Link>
             </li>
             <li className="nav-item">
               <button onClick={handleLogout} className="btn btn-outline-danger">Logout</button>
@@ -51,4 +53,4 @@ function Navbar2() {
   );
 }
 
-export default Navbar2;
+export default Navbar3;

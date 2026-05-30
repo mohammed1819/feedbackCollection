@@ -1,5 +1,6 @@
 const User = require('../models/User')
 const Admin = require('../models/Admin')
+const Company = require('../models/Company')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 require('dotenv').config()
@@ -8,7 +9,6 @@ const asyncHandler = require('express-async-handler')
 const handleUserLogin = asyncHandler(async (req, res) => {
     const { email, pwd, role } = req.body
 
-    console.log(email,pwd,role)
 
     if (!email) {
         return res.status(400).json({ message: 'Email is Required' })
@@ -19,6 +19,7 @@ const handleUserLogin = asyncHandler(async (req, res) => {
     if (!role) {
         return res.status(400).json({ message: 'role is Required' })
     }
+
 
     let foundUser
 
@@ -73,12 +74,14 @@ const handleUserLogin = asyncHandler(async (req, res) => {
         { expiresIn: '1d' }
     )
 
+    const company = await Company.findById(foundUser.companyId)
+
     foundUser.refreshToken = refreshToken
     await foundUser.save()
 
     res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'Lax', secure: true, maxAge: 24 * 60 * 60 * 1000 })
 
-    res.status(201).json({ accessToken })
+    res.status(201).json({ accessToken , slug : company.slug })
 
 })
 

@@ -2,15 +2,29 @@ const Feed = require('../models/Feedback')
 const User = require('../models/User')
 const asyncHandler = require('express-async-handler')
 const { Parser } = require('json2csv')
+const mongoose = require('mongoose')
+const Company = require('../models/Company')
+const sendEmail = require('../utils/sendEmail')
 
 const submitFeedback = asyncHandler(async (req, res) => {
     const { message, rating, category } = req.body
+
+    console.log(req.userid)
+    const user = await User.findById(req.userid)
+    console.log(user)
+
+    if(!user){
+    return res.status(401).json({message:'unauthorized'})
+    }
+
     const newFeedback = new Feed({
         message: message.trim(),
         userID: req.userid ? req.userid : null,
         rating,
-        category
+        category,
+        companyId:user.companyId
     })
+    console.log(newFeedback)
 
     const result = await newFeedback.save()
 
@@ -19,7 +33,9 @@ const submitFeedback = asyncHandler(async (req, res) => {
 
 const singleFeedback = asyncHandler(async(req,res)=>{
 
+    console.log(req.query.id)
     const feedback = await Feed.findById(req.query.id)
+    console.log(feedback)
     if(!feedback){
         return res.status(400).json({message:'Feedback not found'})
     }
@@ -152,4 +168,58 @@ const getCSVFile = asyncHandler(async (req, res) => {
     res.send(csv)
 })
 
-module.exports = { submitFeedback, getFeedbacks, getFeedbackStats, getCSVFile, getMyFeedbacks ,singleFeedback}
+const getCompanyFeedbacks = asyncHandler(async(req,res)=>{
+    const company = await Company.findOne({slug:req.params.slug})
+    const feedbacks = await Feed.find({companyId:company._id})
+    if(!feedbacks || !feedbacks.length){
+        return res.status(404).json({message:'No feedbacks Found'})
+    } 
+    res.status(201).json({feedbacks})
+})
+
+const predefinedMessages = {
+    "approved": "Thank you for your feedback! We appreciate your input and have marked this as approved. We will take action on your suggestion.",
+    "rejected": "Thank you for your feedback. We have reviewed it and decided not to proceed with this suggestion at this time.",
+    "resolved": "Thank you for reporting this issue. We have successfully resolved it and appreciate your help in improving our service.",
+    "in_review": "Thank you for your feedback. We are currently reviewing your input and will get back to you soon."
+}
+
+const reviewFeedback = asyncHandler(async(req,res)=>{
+    const { feedbackId, status, adminMessage } = req.body
+    
+    if(!feedbackId || !status){
+        return res.status(400).json({message:'Feedback ID and status are required'})
+    }
+
+    const feedback = await Feed.findById(feedbackId).populate('userID')
+    if(!feedback){
+        return res.status(404).json({message:'Feedback not found'})
+    }
+
+    // Use custom message or predefined message
+    const finalMessage = adminMessage?.trim() || predefinedMessages[status] || predefinedMessages["in_review"]
+
+    // Update feedback
+    feedback.status = status
+    feedback.adminMessage = finalMessage
+    feedback.reviewedAt = new Date()
+    await feedback.save()
+
+    // Send email to user if they are authenticated
+    if(feedback.userID && feedback.userID.email){
+        try{
+            await sendEmail({
+                to: feedback.userID.email,
+                subject: `Your Feedback Has Been Reviewed - Status: ${status.toUpperCase()}`,
+                text: finalMessage,
+                html: `<p>Your feedback has been reviewed.</p><p><strong>Status:</strong> ${status.toUpperCase()}</p><p><strong>Message:</strong></p><p>${finalMessage}</p>`
+            })
+        }catch(err){
+            console.log('Email sending failed:', err)
+        }
+    }
+
+    res.status(200).json({message:'Feedback reviewed successfully', feedback})
+})
+
+module.exports = { submitFeedback, getFeedbacks, getFeedbackStats, getCSVFile, getMyFeedbacks, singleFeedback, getCompanyFeedbacks, reviewFeedback}

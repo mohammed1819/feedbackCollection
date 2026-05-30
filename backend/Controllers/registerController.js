@@ -6,6 +6,7 @@ const jwt = require('jsonwebtoken')
 const Company = require('../models/Company')
 
 const handleNewUser = asyncHandler(async (req, res) => {
+
     const { email, pwd, role, code} = req.body
     
     if (!email) {
@@ -21,13 +22,17 @@ const handleNewUser = asyncHandler(async (req, res) => {
         return res.status(400).json({ message: 'select a company' })
     }
     
-    const company = await Company.findOne({companyCode:code})
+    let company = await Company.findOne({companyCode:code})
+
+    if(!company){
+        return res.status(400).json({message:'Unauthorized'})
+    }
 
     let duplicate
     let savedUser
     let message 
 
-    if(role=='admin'){
+    if(role == 'admin'){
         duplicate = await Admin.findOne({email})
         if(duplicate){
             return res.status(409).json({ message: 'Email already Exists'})
@@ -86,12 +91,13 @@ const handleNewUser = asyncHandler(async (req, res) => {
         { expiresIn: '1d' }
     )
 
+    company = await Company.findById(savedUser.companyId)
 
     savedUser.refreshToken = refreshToken
     await savedUser.save()
 
     res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'Lax', secure: true, maxAge: 24 * 60 * 60 * 1000 })
-    res.status(201).json({ message: message , accessToken})
+    res.status(201).json({ message: message , accessToken, slug : company.slug, role:savedUser.role})
 
 })
 

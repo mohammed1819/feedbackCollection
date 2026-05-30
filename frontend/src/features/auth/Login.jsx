@@ -4,18 +4,19 @@ import axios from '../../api/axios';
 import useAuth from '../../hooks/useAuth';
 
 const Login = () => {
-    const { setAuth, persist, setPersist } = useAuth();
+    const { setAuth, persist, setPersist,auth} = useAuth();
     const emailRef = useRef();
     const errRef = useRef();
     const navigate = useNavigate();
     const location = useLocation();
-    const from = location.state?.from?.pathname || '/dashboard';
-
+    // const from = location.state?.from?.pathname || '/dashboard';
+    
     const [email, setEmail] = useState('');
     const [pwd, setPwd] = useState('');
     const [errMsg, setErrMsg] = useState('');
     const [isAdmin, setisAdmin] = useState(false);
 
+    
     useEffect(() => {
         emailRef.current.focus();
     }, []);
@@ -37,9 +38,13 @@ const Login = () => {
             });
 
             const accessToken = response?.data?.accessToken;
-            setAuth({ email, pwd, accessToken });
+            const slug = response?.data?.slug
+            setAuth({ email, pwd, accessToken, slug, role});
             setEmail('');
             setPwd('');
+
+            const from = isAdmin ? (location.state?.from?.pathname || `/${slug}/dashboard`) : (location.state?.from?.pathname || '/dashboard')
+
             navigate(from, { replace: true });
         } catch (err) {
             if (!err?.response) {

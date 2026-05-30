@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect } from "react";
 import { faCheck, faTimes, faInfoCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useNavigate } from "react-router-dom";
+import { useNavigate , useLocation} from "react-router-dom";
 import { Link } from "react-router-dom";
 import axios from "../../api/axios";
 import useAuth from "../../hooks/useAuth";
@@ -12,6 +12,7 @@ const PWD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/;
 
 const Signup = () => {
 
+    const location = useLocation()
     const emailRef = useRef();
     const errRef = useRef();
     const navigate = useNavigate()
@@ -92,15 +93,18 @@ const Signup = () => {
                 }
             )
             const accessToken = response?.data?.accessToken
-            setAuth({ email, pwd, accessToken });
-            console.log(email,pwd,accessToken)
+            const roleByServer = response?.data?.role
+            const slug = response?.data?.slug
+            console.log(slug,roleByServer,accessToken)
+            setAuth({ email, pwd, accessToken, slug, role:roleByServer});
             localStorage.setItem('persist', true)
             setPersist(true)
             setSuccess(true)
             setEmail('')
             setPwd('')
             setMatchPwd('')
-            navigate('/dashboard',{replace:true})
+            const from = isAdmin ? (location.state?.from?.pathname || `/${slug}/dashboard`) : (location.state?.from?.pathname || '/dashboard')
+            navigate(from,{replace:true})
         }catch(err){
             if (!err?.response) {
                 setErrMsg('No Server Response');

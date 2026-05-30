@@ -28,8 +28,21 @@ const feedbackSchema = mongoose.Schema(
         },
         status:{
             type:String,
-            enum:["pending,in_review,approved,rejected,resolved"],
+            enum:["pending","in_review","approved","rejected","resolved"],
             default:"pending"
+        },
+        adminMessage:{
+            type:String,
+            default:null
+        },
+        reviewedAt:{
+            type:Date,
+            default:null
+        },
+        companyId:{
+            type:mongoose.Schema.Types.ObjectId,
+            required:true,
+            ref:'Company'
         }
     }
 )
