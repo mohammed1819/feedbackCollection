@@ -104,7 +104,7 @@ const AdminDashboard = () => {
       <div className="mb-5">
         <div className="d-flex justify-content-between align-items-center mb-3">
           <h4>Recent Feedbacks</h4>
-          <Link to="/companyfeedbacks" className="btn btn-primary btn-sm">
+          <Link to={auth?.slug ? `/${auth.slug}/companyfeedbacks` : "#"} className="btn btn-primary btn-sm">
             View All
           </Link>
         </div>
@@ -133,7 +133,7 @@ const AdminDashboard = () => {
         </ul>
         {companyUsers.length > 5 && (
           <div className="mt-3 text-end">
-            <Link to="/companyusers" className="btn btn-secondary btn-sm">
+            <Link to={auth?.slug ? `/${auth.slug}/companyusers` : "#"} className="btn btn-secondary btn-sm">
               View All Users
             </Link>
           </div>
