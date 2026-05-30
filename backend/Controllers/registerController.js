@@ -96,7 +96,7 @@ const handleNewUser = asyncHandler(async (req, res) => {
     savedUser.refreshToken = refreshToken
     await savedUser.save()
 
-    res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'Lax', secure: true, maxAge: 24 * 60 * 60 * 1000 })
+    res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'none', secure: process.env.NODE_ENV === 'production', maxAge: 24 * 60 * 60 * 1000 })
     res.status(201).json({ message: message , accessToken, slug : company.slug, role:savedUser.role})
 
 })

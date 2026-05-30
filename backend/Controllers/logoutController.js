@@ -7,8 +7,8 @@ const logout = (req, res) => {
     try {
         res.clearCookie('jwt', {
             httpOnly: true,
-            sameSite: 'None',
-            secure: true
+            sameSite: 'none',
+            secure: process.env.NODE_ENV === 'production'
         });
         return res.status(200).json({ message: 'Cookie cleared successfully' });
     } catch (err) {

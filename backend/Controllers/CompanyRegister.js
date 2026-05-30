@@ -2,7 +2,7 @@ const Company = require('../models/Company')
 const asyncHandler = require('express-async-handler')
 const sendEmail = require('../utils/sendEmail')
 
-const url = 'http://localhost:5173/verify'
+const url = process.env.NODE_ENV === 'production' ? 'https://feedback-collection-xi.vercel.app/verify' : 'http://localhost:5173/verify'
 
 
 function generateCompanyCode(length = 6) {

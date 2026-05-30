@@ -79,7 +79,7 @@ const handleUserLogin = asyncHandler(async (req, res) => {
     foundUser.refreshToken = refreshToken
     await foundUser.save()
 
-    res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'Lax', secure: true, maxAge: 24 * 60 * 60 * 1000 })
+    res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'none', secure: process.env.NODE_ENV === 'production', maxAge: 24 * 60 * 60 * 1000 })
 
     res.status(201).json({ accessToken , slug : company.slug })
 
